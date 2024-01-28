@@ -5,9 +5,11 @@ function Log(props: any) {
         <div id="log">
             <ol>
                 {
-                    turns.map((turn: any, i: number) => {
+                    turns.map((turn: any) => {
                         return (
-                            <li key={i}>{turn.player} Selected {turn.row}, {turn.column}</li>
+                            <li key={`${turn.row}_${turn.column}`}>
+                                {turn.player} Selected {turn.row}, {turn.column}
+                            </li>
                         )
                     })
                 }
