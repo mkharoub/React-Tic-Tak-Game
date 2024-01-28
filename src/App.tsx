@@ -3,59 +3,73 @@ import {useState} from "react";
 import Player from "./components/Player.tsx";
 import Board from "./components/Board.tsx";
 import GameOver from "./components/GameOver.tsx";
-import {deriveWinner} from "./helpers.ts";
-import {INITIAL_BOARD, INITIAL_PLAYERS} from "./constants.ts";
+import {deriveActivePlayer, deriveBoard, deriveWinner} from "./helpers.ts";
+import Log from "./components/Log.tsx";
+import {INITIAL_PLAYERS} from "./constants.ts";
 import './App.css'
 
 function App() {
-    const [activePlayer, setActivePlayer] = useState(INITIAL_PLAYERS[0].symbol);
-    const [board, setBoard] = useState<any[]>(INITIAL_BOARD);
-    const winner = deriveWinner(board);
-    const hasDraw = !winner && board.map(inner => {
-        return inner.reduce((acm: any, curr: any) => acm + (curr ? 1 : 0), 0)
-    }).reduce((acm, curr) => acm + curr, 0) === 9;
-
+    const [players, setPlayers] = useState(INITIAL_PLAYERS);
+    const [turns, setTurns] = useState<any[]>([]);
+    const board = deriveBoard(turns);
+    const winner = deriveWinner(board, players);
+    const activePlayer = deriveActivePlayer(turns);
+    const hasDraw = !winner && turns.length === 9;
 
     function handleBoardClick(rowIndex: number, columnIndex: number) {
-        if (board[rowIndex][columnIndex]) {
-            return;
-        }
+        setTurns(prevState => {
+            const turn = {
+                player: activePlayer,
+                row: rowIndex,
+                column: columnIndex
+            };
 
-        let active = INITIAL_PLAYERS[0].symbol;
-        if (activePlayer === active) active = INITIAL_PLAYERS[1].symbol;
-
-        setActivePlayer(active);
-        setBoard(prevState => {
-            const prevBoard = [...prevState.map(board => [...board])];
-            prevBoard[rowIndex][columnIndex] = activePlayer;
-            return prevBoard;
+            return [turn, ...prevState];
         });
     }
 
     function handleRematch() {
-        setBoard(INITIAL_BOARD);
-        setActivePlayer(INITIAL_PLAYERS[0].symbol);
+        setTurns([]);
+    }
+
+    function handlePlayerNameChange(symbol: string, newName: string) {
+        setPlayers(prevState => {
+            return [...prevState.map(player => {
+                if (player.symbol === symbol) {
+                    return {
+                        symbol,
+                        name: newName
+                    }
+                }
+
+                return {...player};
+            })];
+        });
     }
 
     return (
-        <main id="game-container">
-            <ol id="players" className="highlight-player">
-                {
-                    INITIAL_PLAYERS.map(player => {
-                        return (
-                            <Player key={player.symbol}
-                                    symbol={player.symbol}
-                                    name={player.name}
-                                    activePlayer={activePlayer}
-                            />
-                        )
-                    })
-                }
-            </ol>
-            <Board activePlayer={activePlayer} board={board} onBoardClick={handleBoardClick}/>
-            {(winner || hasDraw) && <GameOver winner={winner} hasDraw={hasDraw} onRematch={handleRematch}/>}
+        <main>
+            <div id="game-container">
+                <ol id="players" className="highlight-player">
+                    {
+                        players.map(player => {
+                            return (
+                                <Player key={player.symbol}
+                                        symbol={player.symbol}
+                                        name={player.name}
+                                        activePlayer={activePlayer}
+                                        onPlayerNameChange={handlePlayerNameChange}
+                                />
+                            )
+                        })
+                    }
+                </ol>
+                <Board activePlayer={activePlayer} board={board} onBoardClick={handleBoardClick}/>
+                {(winner || hasDraw) && <GameOver winner={winner} hasDraw={hasDraw} onRematch={handleRematch}/>}
+            </div>
+            <Log turns={turns}/>
         </main>
     )
 }
 
-export default App
+export default App;

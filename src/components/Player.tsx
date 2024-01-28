@@ -1,12 +1,16 @@
 import {useState} from "react";
 
 const Player = (props: any) => {
-    const {symbol, name, activePlayer} = props;
+    const {symbol, name, activePlayer, onPlayerNameChange} = props;
     const [isEditing, setIsEditing] = useState(false);
     const [playerName, setPlayerName] = useState(name);
 
     function handleToggleSaveEdit() {
         setIsEditing(prevState => !prevState);
+
+        if (isEditing) {
+            onPlayerNameChange(symbol, playerName);
+        }
     }
 
     function handleEditName(e: any) {

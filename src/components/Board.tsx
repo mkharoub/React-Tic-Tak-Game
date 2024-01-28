@@ -13,7 +13,7 @@ const Board = (props: any) => {
                                         row.map((column: any, columnIndex: number) => {
                                             return (
                                                 <li key={columnIndex}>
-                                                    <button onClick={() => onBoardClick(rowIndex, columnIndex)}>
+                                                    <button onClick={() => onBoardClick(rowIndex, columnIndex)} disabled={!!board[rowIndex][columnIndex]}>
                                                         {column}
                                                     </button>
                                                 </li>
