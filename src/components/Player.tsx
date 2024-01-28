@@ -1,7 +1,7 @@
 import {useState} from "react";
 
 const Player = (props: any) => {
-    const {symbol, name} = props;
+    const {symbol, name, activePlayer} = props;
     const [isEditing, setIsEditing] = useState(false);
     const [playerName, setPlayerName] = useState(name);
 
@@ -19,7 +19,7 @@ const Player = (props: any) => {
     }
 
     return (
-        <li>
+        <li className={activePlayer === symbol ? 'active' : ''}>
             <span className="player">
                 {player}
                 <span className="player-symbol">{symbol}</span>
